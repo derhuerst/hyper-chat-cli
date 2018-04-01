@@ -1,0 +1,22 @@
+{
+	"name": "hyper-chat-cli",
+	"description": "A P2P command line chat powered by hyperdb.",
+	"version": "0.1.0",
+	"main": "index.js",
+	"files": [
+		"index.js"
+	],
+	"keywords": [
+		"todo"
+	],
+	"author": "Jannis R <mail@jannisr.de>",
+	"homepage": "https://github.com/derhuerst/hyper-chat-cli",
+	"repository": "derhuerst/hyper-chat-cli",
+	"bugs": "https://github.com/derhuerst/hyper-chat-cli/issues",
+	"license": "ISC",
+	"engines": {
+		"node": ">=6"
+	},
+	"dependencies": {
+	}
+}
