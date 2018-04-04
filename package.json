@@ -3,8 +3,12 @@
 	"description": "A P2P command line chat powered by hyperdb.",
 	"version": "0.1.0",
 	"main": "index.js",
+	"bin": {
+		"hyper-chat": "./cli.js"
+	},
 	"files": [
 		"index.js",
+		"cli.js",
 		"lib"
 	],
 	"keywords": [
@@ -20,7 +24,11 @@
 	},
 	"dependencies": {
 		"airswarm": "^1.1.0",
+		"cat-names": "^1.0.2",
+		"env-paths": "^1.0.0",
 		"hyperdb": "^3.0.0-1",
+		"mkdirp": "^0.5.1",
+		"mri": "^1.1.0",
 		"really-basic-chat-ui": "^0.3.3"
 	}
 }
