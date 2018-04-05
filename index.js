@@ -80,6 +80,40 @@ const onReady = (db, name) => {
 		unauthorizedError = null
 		rerender()
 	})
+
+	const seen = Object.create(null)
+	const onRow = (row) => {
+		if (seen[row.key]) return null
+		seen[row.key] = true
+
+		const key = row.key.split('/')
+		if (key[0] !== 'msgs') return
+		const peer = (key[1] || '').split('-')[1]
+		db.get('names/' + peer, (err, [name]) => {
+			if (err) console.error(err)
+			if (err) return null // todo: handle error
+
+			msgs.push({
+				from: name && name.value || 'oops',
+				when: row.value.when,
+				content: row.value.content
+			})
+			rerender()
+		})
+	}
+
+	const onAppend = (feed) => {
+		const h = db.createHistoryStream({reverse: true})
+		h.once('data', (row) => {
+			h.destroy()
+			onRow(row)
+		})
+	}
+	db.on('remote-update', onAppend)
+	db.on('append', onAppend)
+
+	// todo: mafintosh/hyperdb#92
+	db.createHistoryStream().on('data', onRow)
 }
 
 const openChat = (dir, key, name) => {
