@@ -5,6 +5,8 @@ const createUI = require('really-basic-chat-ui')
 
 const findPeers = require('./lib/find-peers')
 
+const validKey = /^[0-9a-f]{64}$/i
+
 const onceAuthorized = (db, key, cb) => {
 	const check = () => {
 		db.authorized(key, (err, isAuthorized) => {
@@ -23,7 +25,6 @@ const onReady = (db, name) => {
 	})
 
 	db.put('names/' + db.local.key.toString('hex'), name, (err) => {
-		if (err) console.error(err)
 		// todo: handle error
 	})
 
@@ -37,8 +38,8 @@ const onReady = (db, name) => {
 	let err = null
 
 	const send = (content) => {
-		if (content.slice(0, 12) === ':authorize ') {
-			let key = content.slice(12).trim()
+		if (content.slice(0, 11) === ':authorize ') {
+			let key = content.slice(11).trim()
 			if (!validKey.test(key)) {
 				err = 'Invalid key.'
 				rerender()
@@ -47,7 +48,6 @@ const onReady = (db, name) => {
 			key = Buffer.from(key, 'hex')
 
 			db.authorize(key, (err) => {
-				if (err) console.error(err)
 				if (err) return null // todo: handle error
 				msgs.push({
 					from: name,
@@ -61,7 +61,7 @@ const onReady = (db, name) => {
 			const t = Date.now()
 			const val = {from, when: t, content}
 			db.put('msgs/' + t + '-' + from, val, (err) => {
-				if (err) console.error(err)
+				if (err) return null // todo
 				// todo: handle error
 			})
 		}
@@ -74,7 +74,6 @@ const onReady = (db, name) => {
 	setImmediate(rerender)
 
 	onceAuthorized(db, db.local.key, (err) => {
-		if (err) console.error(err)
 		if (err) return null // todo
 
 		unauthorizedError = null
@@ -89,8 +88,7 @@ const onReady = (db, name) => {
 		const key = row.key.split('/')
 		if (key[0] !== 'msgs') return
 		const peer = (key[1] || '').split('-')[1]
-		db.get('names/' + peer, (err, [name]) => {
-			if (err) console.error(err)
+		db.get('names/' + peer, (err, name) => {
 			if (err) return null // todo: handle error
 
 			msgs.push({
@@ -118,6 +116,7 @@ const onReady = (db, name) => {
 
 const openChat = (dir, key, name) => {
 	const db = hyperdb(dir, key, {
+		firstNode: true,
 		valueEncoding: 'json'
 	})
 
